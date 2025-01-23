@@ -36,6 +36,7 @@ class MultipartRequestProcessorTest {
 
     @Test
     void should_process_file_and_save_entity_successfully() {
+        // Given
         FilePart mockFilePart = buildFilePart();
         FileEntity mockFileEntity = buildFileEntity(FILE_CONTENT);
 
@@ -44,8 +45,10 @@ class MultipartRequestProcessorTest {
 
         ServerRequest mockRequest = mockServerRequest(mockFilePart);
 
+        // When
         Flux<FileEntity> result = multipartRequestProcessor.processRequest(mockRequest);
 
+        // Then
         StepVerifier.create(result)
                 .assertNext(fileEntity -> {
                     assertThat(fileEntity).isNotNull();
@@ -61,13 +64,16 @@ class MultipartRequestProcessorTest {
 
     @Test
     void should_emit_no_entities_and_skip_save_when_processing_fails() {
+        // Given
         FilePart mockFilePart = buildFilePart();
 
         when(fileProcessor.processFile(any(FilePart.class))).thenReturn(Mono.error(new RuntimeException("File processing error")));
         ServerRequest mockRequest = mockServerRequest(mockFilePart);
 
+        // When
         Flux<FileEntity> result = multipartRequestProcessor.processRequest(mockRequest);
 
+        // Then
         StepVerifier.create(result)
                 .expectNextCount(0)
                 .verifyComplete();
@@ -78,6 +84,7 @@ class MultipartRequestProcessorTest {
 
     @Test
     void should_return_no_entities_when_save_fails() {
+        // Given
         FilePart mockFilePart = buildFilePart();
         FileEntity mockFileEntity = buildFileEntity(FILE_CONTENT);
 
@@ -86,8 +93,10 @@ class MultipartRequestProcessorTest {
 
         ServerRequest mockRequest = mockServerRequest(mockFilePart);
 
+        // When
         Flux<FileEntity> result = multipartRequestProcessor.processRequest(mockRequest);
 
+        // Then
         StepVerifier.create(result)
                 .expectNextCount(0)
                 .verifyComplete();

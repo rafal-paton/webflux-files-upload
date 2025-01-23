@@ -29,6 +29,7 @@ class FileRouterHandlerTest {
 
     @Test
     void should_route_file_upload_request_successfully() {
+        // Given
         FileEntity entity = new FileEntity(
                 1L,
                 "example.txt",
@@ -37,6 +38,7 @@ class FileRouterHandlerTest {
 
         when(requestProcessor.processRequest(any())).thenReturn(Flux.just(entity));
 
+        // When & Then
         webTestClient.post()
                 .uri("/file/upload")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
@@ -47,7 +49,6 @@ class FileRouterHandlerTest {
                 .hasSize(1)
                 .value(fileEntities -> {
                     assertThat(fileEntities.getFirst())
-                            .usingRecursiveComparison()
                             .isEqualTo(entity);
                 });
 
@@ -56,6 +57,7 @@ class FileRouterHandlerTest {
 
     @Test
     void should_reject_upload_route_when_content_type_is_not_multipart() {
+        // When & Then
         webTestClient.post()
                 .uri("/file/upload")
                 .contentType(MediaType.APPLICATION_JSON)

@@ -37,6 +37,7 @@ class FileUploadProcessorTest {
 
     @Test
     void should_process_file_and_store_content_correctly() throws IOException {
+        // Given
         String fileName = "test.txt";
         String fileContent = "This is a test file content";
         FilePart mockFilePart = mock(FilePart.class);
@@ -45,8 +46,10 @@ class FileUploadProcessorTest {
         DataBuffer dataBuffer = createRealDataBuffer(fileContent);
         when(mockFilePart.content()).thenReturn(Flux.just(dataBuffer));
 
+        // When
         Mono<FileEntity> result = fileUploadProcessor.processFile(mockFilePart);
 
+        // Then
         StepVerifier.create(result)
                 .assertNext(fileEntity -> {
                     assertThat(fileEntity).isNotNull();
@@ -68,6 +71,7 @@ class FileUploadProcessorTest {
 
     @Test
     void should_store_each_part_separately_when_buffer_is_smaller_than_parts() {
+        // Given
         ReflectionTestUtils.setField(fileUploadProcessor, "bufferSize", 10);
         String fileName = "large_test.txt";
         String part1 = "This is part 1 of the file.";
@@ -82,8 +86,10 @@ class FileUploadProcessorTest {
         DataBuffer buffer3 = createRealDataBuffer(part3);
         when(mockFilePart.content()).thenReturn(Flux.just(buffer1, buffer2, buffer3));
 
+        // When
         Mono<FileEntity> result = fileUploadProcessor.processFile(mockFilePart);
 
+        // Then
         StepVerifier.create(result)
                 .assertNext(fileEntity -> {
                     assertThat(fileEntity).isNotNull();
@@ -102,6 +108,7 @@ class FileUploadProcessorTest {
 
     @Test
     void should_combine_parts_when_they_fit_in_buffer() {
+        // Given
         ReflectionTestUtils.setField(fileUploadProcessor, "bufferSize", 50);
         String fileName = "large_test.txt";
         String part1 = "This is part 1 of the file.";
@@ -116,8 +123,10 @@ class FileUploadProcessorTest {
         DataBuffer buffer3 = createRealDataBuffer(part3);
         when(mockFilePart.content()).thenReturn(Flux.just(buffer1, buffer2, buffer3));
 
+        // When
         Mono<FileEntity> result = fileUploadProcessor.processFile(mockFilePart);
 
+        // Then
         StepVerifier.create(result)
                 .assertNext(fileEntity -> {
                     assertThat(fileEntity).isNotNull();
@@ -136,13 +145,16 @@ class FileUploadProcessorTest {
 
     @Test
     void should_create_empty_file_entity_without_storage_call() {
+        // Given
         String fileName = "empty.txt";
         FilePart mockFilePart = mock(FilePart.class);
         when(mockFilePart.filename()).thenReturn(fileName);
         when(mockFilePart.content()).thenReturn(Flux.empty());
 
+        // When
         Mono<FileEntity> result = fileUploadProcessor.processFile(mockFilePart);
 
+        // Then
         StepVerifier.create(result)
                 .assertNext(fileEntity -> {
                     assertThat(fileEntity).isNotNull();
