@@ -36,7 +36,6 @@ public class FileUploadProcessor {
                 Pipe pipe = Pipe.open();
                 MessageDigest digest = createDigest();
                 AtomicLong size = new AtomicLong(0);
-
                 initializeStorage(filePart, pipe, emitter);
                 processFileContent(filePart, pipe, digest, size, emitter);
             } catch (Exception e) {
